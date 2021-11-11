@@ -12,8 +12,9 @@ main:
     # YOUR CODE HERE	
     la $s0, string
     lw $s1, stringLength
-    mul $s1, $s1, 4
+    mul $s1, $s1, 1
     add $s1, $s1, $s0
+    subi $s1, $s1, 1
     # Determine isPalindrome
     # Set the arguments before 
     # calling the function
@@ -55,8 +56,8 @@ isPalindromeRecursive:
     # base case 1:
     # if string length == 1, $v0 <-- yes
     # YOUR CODE HERE
-    seq $v0, $a0, $a1
-    add $t0, $v0, $zero
+    la $v0, yes
+    seq $t0, $a0, $a1
     bnez $t0, return # meaning string length == 1
     
     # base case 2 and 3:
@@ -65,25 +66,34 @@ isPalindromeRecursive:
     #    $v0 <-- yes
     # else $v0 <-- no
     # YOUR CODE HERE
-    lb $t1, 0($a0)
-    lb $t2, 0($a1)
+    #bgt $a0, $a1, utilEndProgram
+    
     sub $t3, $a1, $a0
+    addi $t3, $t3, 1
     ble $t3, 3, checkChars
     
     j recursiveStep
     
     # YOU MAY NEED TO ADD CODE HERE
 checkChars:
-    seq $v0, $t1, $t2
-    
+    lb $t1, 0($a0)
+    lb $t2, 0($a1)
+    seq $t0, $t1, $t2
+    bnez $t0, return
+    la $v0, no
+    j return
+     
         
 recursiveStep:
     # string length > 3
     # Recursive step:  if characters at pointers
     # are not equal, $v0 <-- no, end recursion.
     # YOUR CODE HERE
+    lb $t1, 0($a0)
+    lb $t2, 0($a1)
+    bne $t1, $t2, returnNo
     
-    bne $t1, $t2, return
+    
     
     # Otherwise move closer to the base case -
     # move the pointers in.
@@ -97,6 +107,11 @@ recursiveStep:
     # YOUR CODE HERE
     lw $a0, 8($sp)
     lw $a1, 4($sp)
+    j return
+    
+returnNo:
+    la $v0, no
+
 return:
     # string length = 1, 2, or 3, end recursion
     # Restore the return address
@@ -108,10 +123,10 @@ return:
     jr $ra		
 
 .data
+    string:        .asciiz "a"
+    stringLength:  .word 1
     answer:        .asciiz "\nAnswer: "
     no:            .asciiz "no"
-    string:        .asciiz "nursesrun"
-    stringLength:  .word 9
     yes:           .asciiz "yes"
 
 .include "utils.asm"
